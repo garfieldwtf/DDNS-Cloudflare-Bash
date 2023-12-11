@@ -113,7 +113,7 @@ for record in "${dns_records[@]}"; do
 
   ### Get the dns record id and current proxy status from Cloudflare API when proxied is "true"
   if [ "${proxied}" == "true" ]; then
-    dns_record_info=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones/$zoneid/dns_records?type=A&name=$record" \
+    dns_record_info=$(curl -4 -s -X GET "https://api.cloudflare.com/client/v4/zones/$zoneid/dns_records?type=A&name=$record" \
       -H "Authorization: Bearer $cloudflare_zone_api_token" \
       -H "Content-Type: application/json")
     if [[ ${dns_record_info} == *"\"success\":false"* ]]; then
@@ -134,7 +134,7 @@ for record in "${dns_records[@]}"; do
   echo "==> DNS record of ${record} is: ${dns_record_ip}. Trying to update..."
 
   ### Get the dns record information from Cloudflare API
-  cloudflare_record_info=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones/$zoneid/dns_records?type=A&name=$record" \
+  cloudflare_record_info=$(curl -4 -s -X GET "https://api.cloudflare.com/client/v4/zones/$zoneid/dns_records?type=A&name=$record" \
     -H "Authorization: Bearer $cloudflare_zone_api_token" \
     -H "Content-Type: application/json")
   if [[ ${cloudflare_record_info} == *"\"success\":false"* ]]; then
@@ -147,7 +147,7 @@ for record in "${dns_records[@]}"; do
   cloudflare_dns_record_id=$(echo ${cloudflare_record_info} | grep -o '"id":"[^"]*' | cut -d'"' -f4)
 
   ### Push new dns record information to Cloudflare API
-  update_dns_record=$(curl -s -X PUT "https://api.cloudflare.com/client/v4/zones/$zoneid/dns_records/$cloudflare_dns_record_id" \
+  update_dns_record=$(curl -4 -s -X PUT "https://api.cloudflare.com/client/v4/zones/$zoneid/dns_records/$cloudflare_dns_record_id" \
     -H "Authorization: Bearer $cloudflare_zone_api_token" \
     -H "Content-Type: application/json" \
     --data "{\"type\":\"A\",\"name\":\"$record\",\"content\":\"$ip\",\"ttl\":$ttl,\"proxied\":$proxied}")
